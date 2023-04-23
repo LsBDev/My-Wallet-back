@@ -1,13 +1,13 @@
 import joi from "joi";
-import db from "../app.js";
+import db from "../database/database.connection.js"
 import bcrypt from "bcrypt";
 import { v4 as uuid } from 'uuid';
 
 const signUpSchema = joi.object({
     name: joi.string().min(3).required(),
     email: joi.string().email().required(),
-    password: joi.min(6),
-    confirmPassword: joi.min(6)
+    password: joi.min(3).required(),
+    confirmPassword: joi.min(6).required()
 })
 //CADASTRO
 export async function signUp(req, res) {
@@ -33,21 +33,24 @@ export async function signUp(req, res) {
     }
 };
 //LOGIN
+//USAR LOCAL STORAGE
 export async function signIn(req, res) {
     const {email, password} = req.body;
     try {
-        const userExisting = await db.collection("users").findOne({email: email, password: password})
+        const userExisting = await db.collection("users").findOne({email: email});
+        if(!userExisting) return res.sendStatus(404);
         if(userExisting && bcrypt.compareSync(password, userExisting.password)) {
             const token = uuid();
             await db.collection("sessions").insertOne({userId: userExisting._id, token: token})
             return res.status(200).send(token);
-        } else {
-            return res.status(400).send("Mau pedido");
         }
 
     }catch (err) {
         res.send(err.message)
     }    
 };
+
+
+
 
 
