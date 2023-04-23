@@ -1,9 +1,12 @@
-// import { Router } from "express";
-//importar os arquivos de rotas. 
+import { Router } from "express";
+import signUp from "./signUp.routes.js"
 
 
-//criar um router único 
-//export default router
+const router = Router();
+router.use(signUp);
+router.use()
 
 
-//const router = Router() importar lá no app.js app.use(router)
+export default router;
+
+
