@@ -6,4 +6,5 @@ const router = Router();
 router.get("/home", transactions);
 router.post("/nova-transacao", InOutTransaction);
 
+
 export default router;
