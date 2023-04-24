@@ -38,17 +38,26 @@ export async function signIn(req, res) {
     const {email, password} = req.body;
     try {
         const userExisting = await db.collection("users").findOne({email: email});
-        if(!userExisting) return res.sendStatus(404);
+        if(!userExisting || !bcrypt.compareSync(password, userExisting.password)) return res.sendStatus(404);
         if(userExisting && bcrypt.compareSync(password, userExisting.password)) {
             const token = uuid();
             await db.collection("sessions").insertOne({userId: userExisting._id, token: token})
-            return res.status(200).send(token);
+            return res.status(200).send({name: userExisting.name, token: token});
         }
 
     }catch (err) {
         res.send(err.message)
     }    
 };
+
+export async function users(req, res) {
+    try {
+        const usuarios = await db.collection("users").find().toArray()        
+        res.send(usuarios)
+    } catch(err) {
+        res.send(err)
+    }
+}
 
 
 
