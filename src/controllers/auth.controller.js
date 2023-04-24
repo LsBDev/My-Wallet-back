@@ -6,8 +6,8 @@ import { v4 as uuid } from 'uuid';
 const signUpSchema = joi.object({
     name: joi.string().min(3).required(),
     email: joi.string().email().required(),
-    password: joi.min(3).required(),
-    confirmPassword: joi.min(6).required()
+    password: joi.string().min(3).required(),
+    confirmPassword: joi.string().min(3).required()
 })
 //CADASTRO
 export async function signUp(req, res) {
