@@ -1,11 +1,11 @@
-import db from "../database/database.connection.js";
+import { db }  from "../database/database.connection.js";
 
 
 export async function InOutTransaction(req, res) {
     const {tipo} = res.params;
     const {value, description} =req.body;
     const {authorization} = req.headers;
-    const token = authorization?.replace("Bearer", "");   
+    const token = authorization?.replace("Bearer", "");
     const transactionData = {
         value: tipo === "entrada" ? parseInt(value) : -parseInt(value),
         description: description,
