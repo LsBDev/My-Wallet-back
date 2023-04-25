@@ -42,7 +42,7 @@ export async function signIn(req, res) {
         if(userExisting && bcrypt.compareSync(password, userExisting.password)) {
             const token = uuid();
             await db.collection("sessions").insertOne({userId: userExisting._id, token: token})
-            return res.status(200).send({name: userExisting.name, token: token});
+            return res.status(200).send({name: userExisting.name, userId: userExisting._id, token: token});
         }
 
     }catch (err) {
@@ -50,23 +50,38 @@ export async function signIn(req, res) {
     }    
 };
 
-export async function users(req, res) {
-    try {
-        const usuarios = await db.collection("users").find().toArray()        
-        res.send(usuarios)
-    } catch(err) {
-        res.send(err)
-    }
-}
 
-export async function session(req, res) {
-    try {
-        const session = await db.collection("sessions").find().toArray()        
-        res.send(session)
-    } catch(err) {
-        res.send(err)
-    }
-}
+//testes
+// export async function users(req, res) {
+//     try {
+//         const usuarios = await db.collection("users").find().toArray()        
+//         res.send(usuarios)
+//     } catch(err) {
+//         res.send(err)
+//     }
+// }
+
+// export async function session(req, res) {
+//     try {
+//         const session = await db.collection("sessions").find().toArray()        
+//         res.send(session)
+//     } catch(err) {
+//         res.send(err)
+//     }
+// }
+
+// export async function transacoes(req, res) {
+//     const { userId } = req.body
+//     try {
+//         const transacoes = await db.collection("transactions").findOne({userId: userId}).toArray();
+//         res.send(transacoes)
+
+//     }catch(err) {
+//         res.send(err)
+//     }
+
+// }
+
 
 
 
