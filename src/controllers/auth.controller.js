@@ -59,6 +59,15 @@ export async function users(req, res) {
     }
 }
 
+export async function session(req, res) {
+    try {
+        const session = await db.collection("sessions").find().toArray()        
+        res.send(session)
+    } catch(err) {
+        res.send(err)
+    }
+}
+
 
 
 
