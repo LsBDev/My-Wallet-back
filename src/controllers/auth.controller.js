@@ -1,87 +1,53 @@
 import { db } from "../database/database.connection.js"
-import joi from "joi";
-import bcrypt from "bcrypt";
-import { v4 as uuid } from 'uuid';
+import bcrypt from "bcrypt"
+import { v4 as uuid } from 'uuid'
 
-const signUpSchema = joi.object({
-    name: joi.string().min(3).required(),
-    email: joi.string().email().required(),
-    password: joi.string().min(3).required(),
-    confirmPassword: joi.string().min(3).required()
-})
 //CADASTRO
 export async function signUp(req, res) {
-    const {name, email, password, confirmPassword} = req.body;    
-    const validation = signUpSchema.validate(req.body);
-
-    if(password !== confirmPassword) return res.status(422).send("As senhas não conferem");
-    if(validation.error) {
-        return res.status(422).send("Preencha os campos corretamente");
-    }
-    const encryptedPassword = bcrypt.hashSync(password, 10);
-    const user = {name: name, email: email, password: encryptedPassword}
-
+    const {name, email, password} = req.body   
+    
     try {
         const userExisting = await db.collection("users").findOne({name: name, email: email})
-        if(userExisting) return res.status(409).send("usuário já existe");
+        if(userExisting) return res.status(409).send("E-mail já cadastrado!")
+        
+        const encryptedPassword = bcrypt.hashSync(password, 10)        
+        const user = {name: name, email: email, password: encryptedPassword}
+        await db.collection("users").insertOne(user)
+        return res.sendStatus(201)
 
-        await db.collection("users").insertOne(user);
-        return res.sendStatus(201);
-
-    }catch (err) {
+    } catch(err) {
         res.send(err.message)
     }
-};
-//LOGIN
-//USAR LOCAL STORAGE
-export async function signIn(req, res) {
-    const {email, password} = req.body;
-    try {
-        const userExisting = await db.collection("users").findOne({email: email});
-        if(!userExisting || !bcrypt.compareSync(password, userExisting.password)) return res.sendStatus(404);
-        if(userExisting && bcrypt.compareSync(password, userExisting.password)) {
-            const token = uuid();
-            await db.collection("sessions").insertOne({userId: userExisting._id, token: token})
-            return res.status(200).send({name: userExisting.name, userId: userExisting._id, token: token});
-        }
+}
 
-    }catch (err) {
+//LOGIN
+export async function signIn(req, res) {
+    const {email, password} = req.body
+
+    try {
+        const userExisting = await db.collection("users").findOne({email: email})
+        if(!userExisting || !bcrypt.compareSync(password, userExisting.password)) return res.sendStatus(404)
+
+        const token = uuid()
+        await db.collection("sessions").insertOne({userId: userExisting._id, token: token})
+        return res.status(200).send({name: userExisting.name, userId: userExisting._id, token: token})   
+
+    } catch(err) {
         res.send(err.message)
     }    
-};
+}
 
+//LOGOUT
+export async function signOut(req, res) {  
+    const token = res.locals.token
+    try {
+        await db.collection("sessions").deleteOne({token})
+        res.sendStatus(200)
 
-//testes
-// export async function users(req, res) {
-//     try {
-//         const usuarios = await db.collection("users").find().toArray()        
-//         res.send(usuarios)
-//     } catch(err) {
-//         res.send(err)
-//     }
-// }
-
-// export async function session(req, res) {
-//     try {
-//         const session = await db.collection("sessions").find().toArray()        
-//         res.send(session)
-//     } catch(err) {
-//         res.send(err)
-//     }
-// }
-
-// export async function transacoes(req, res) {
-//     const { userId } = req.body
-//     try {
-//         const transacoes = await db.collection("transactions").findOne({userId: userId}).toArray();
-//         res.send(transacoes)
-
-//     }catch(err) {
-//         res.send(err)
-//     }
-
-// }
-
+    } catch(err) {
+        res.status(500).send(err.message)
+    }
+}
 
 
 
