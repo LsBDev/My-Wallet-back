@@ -1,5 +1,6 @@
 import dayjs from "dayjs"
 import {db} from "../database/database.connection.js"
+import { ObjectId } from "mongodb"
 
 export async function createTransaction(req, res) {
   const {value, description, type} = req.body
@@ -24,7 +25,38 @@ export async function getTransactions(req, res) {
 
   } catch(err) {
     res.status(500).send(err.message)
-  }
+  }  
+}
 
-  
+export async function deleteTransaction(req, res) {
+  const {userId} = res.locals.session
+  const {id} = req.params
+  if(!id) return res.sendStatus(404)
+
+  try {
+    const result = await db.collection("transactions").deleteOne({_id: new ObjectId(id), userId})
+    if(result.deletedCount === 0) return res.sendStatus(404)
+
+    res.sendStatus(202)
+
+  } catch(err) {
+    res.send(err.message)
+  }
+}
+
+export async function updateTransaction(req, res) {
+  const {userId} = res.locals.session
+  const {value, description} = req.body
+  const {id} = req.params
+  if(!id) return res.sendStatus(404)
+
+  try {
+    const result = await db.collection("transactions").updateOne({_id: new ObjectId(id), userId}, {$set: {value: Number(value), description}})
+
+    if(result.matchedCount === 0) return res.sendStatus(404)
+    res.sendStatus(200)
+
+  } catch(err) {
+    res.send(err.message)
+  }
 }
