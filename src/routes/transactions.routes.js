@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTransaction, getTransactions } from "../controllers/transaction.controllers.js";
+import { createTransaction, deleteTransaction, getTransactions, updateTransaction } from "../controllers/transaction.controllers.js";
 import { authValidation } from "../middlewares/authValidation.middleware.js";
 import validateSchema from "../middlewares/validateSchema.js";
 import { transactionSchema } from "../schemas/transaction.schemas.js";
@@ -9,5 +9,7 @@ transactionRouter.use(authValidation)
 
 transactionRouter.post("/transactions", validateSchema(transactionSchema), createTransaction)
 transactionRouter.get("/transactions", getTransactions)
+transactionRouter.delete("/transactions/:id", deleteTransaction)
+transactionRouter.put("/transactions/:id", validateSchema(transactionSchema), updateTransaction)
 
 export default transactionRouter
