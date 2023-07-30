@@ -3,10 +3,10 @@ import authRouter from "./auth.routes.js"
 import transactionRouter from "./transactions.routes.js";
 
 
-const router = Router();
-router.use(authRouter);
-router.use(transactionRouter);
+const routes = Router();
+routes.use(authRouter);
+routes.use(transactionRouter);
 
-export default router;
+export default routes;
 
 

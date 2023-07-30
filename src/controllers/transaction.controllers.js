@@ -15,9 +15,12 @@ export async function createTransaction(req, res) {
   }
 }
 
-export async function getTransactions() {
+export async function getTransactions(req, res) {
+  const {userId} = res.locals.session
 
   try {
+    const transactions = await db.collection("transactions").find({userId}).sort({date: -1}).toArray()
+    res.send(transactions)
 
   } catch(err) {
     res.status(500).send(err.message)

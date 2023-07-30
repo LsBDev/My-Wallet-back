@@ -7,7 +7,7 @@ export async function signUp(req, res) {
     const {name, email, password} = req.body   
     
     try {
-        const userExisting = await db.collection("users").findOne({name: name, email: email})
+        const userExisting = await db.collection("users").findOne({email: email})
         if(userExisting) return res.status(409).send("E-mail já cadastrado!")
         
         const encryptedPassword = bcrypt.hashSync(password, 10)        
@@ -16,7 +16,7 @@ export async function signUp(req, res) {
         return res.sendStatus(201)
 
     } catch(err) {
-        res.send(err.message)
+        res.status(500).send(err.message)
     }
 }
 
@@ -26,22 +26,22 @@ export async function signIn(req, res) {
 
     try {
         const userExisting = await db.collection("users").findOne({email: email})
-        if(!userExisting || !bcrypt.compareSync(password, userExisting.password)) return res.sendStatus(404)
+        if(!userExisting || !bcrypt.compareSync(password, userExisting.password)) return res.status(401).send("Dados incorretos")
 
         const token = uuid()
         await db.collection("sessions").insertOne({userId: userExisting._id, token: token})
-        return res.status(200).send({name: userExisting.name, userId: userExisting._id, token: token})   
+        return res.status(200).send({userName: userExisting.name, token: token})   
 
     } catch(err) {
-        res.send(err.message)
+        res.status(500).send(err.message)
     }    
 }
 
 //LOGOUT
 export async function signOut(req, res) {  
-    const token = res.locals.token
+    const {token} = res.locals.session
     try {
-        await db.collection("sessions").deleteOne({token})
+        await db.collection("sessions").deleteOne({token: token})
         res.sendStatus(200)
 
     } catch(err) {
