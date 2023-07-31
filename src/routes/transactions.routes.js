@@ -9,7 +9,7 @@ transactionRouter.use(authValidation)
 
 transactionRouter.post("/transactions", validateSchema(transactionSchema), createTransaction)
 transactionRouter.get("/transactions", getTransactions)
-transactionRouter.delete("/transactions/:tipo", deleteTransaction)
-transactionRouter.put("/transactions/:tipo", validateSchema(transactionSchema), updateTransaction)
+transactionRouter.delete("/transactions/:type", deleteTransaction)
+transactionRouter.put("/transactions/:type", validateSchema(transactionSchema), updateTransaction)
 
 export default transactionRouter
